@@ -1,7 +1,8 @@
 import React from 'react';
 import './App.css';
-import {GameState, GameStateContext, SetGameStateContext} from './components/contexts';
+import {GameStateContext, SetGameStateContext} from './components/contexts';
 import {MainRouter} from './router';
+import {GameState} from "./core/games/state";
 
 function App() {
     const [gameState, setGameState] = React.useState<GameState>(GameState.NotStarted);

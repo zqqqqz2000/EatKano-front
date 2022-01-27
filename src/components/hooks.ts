@@ -1,5 +1,6 @@
 import {useContext} from "react";
-import {GameState, GameStateContext, SetGameStateContext} from "./contexts";
+import {GameStateContext, SetGameStateContext} from "./contexts";
+import {GameState} from "../core/games/state";
 
 export const useGameState: () => [GameState, (gameState: GameState) => void] = () => {
     const gameState = useContext(GameStateContext);

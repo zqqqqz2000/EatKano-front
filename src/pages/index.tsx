@@ -3,7 +3,7 @@ import styled from "@emotion/styled";
 import {Button} from "react-bootstrap";
 import { Margin } from "../components/margin";
 import {useGameState} from "../components/hooks";
-import {GameState} from "../components/contexts";
+import {GameState} from "../core/games/state";
 
 const Text = styled.div<{ color?: string, size?: string, weight?: number | string }>`
   color: ${props => props.color ?? 'black'};

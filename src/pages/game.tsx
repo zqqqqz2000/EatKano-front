@@ -2,7 +2,8 @@ import React from "react";
 import {Outlet} from "react-router-dom";
 import styled from "@emotion/styled";
 import {useGameState} from "../components/hooks";
-import {GameState} from "../components/contexts";
+import {GameState} from "../core/games/state";
+import {BasicGame} from "../components/basicGame";
 
 const FloatLayer = styled.div`
   position: fixed;
@@ -21,11 +22,12 @@ const FullScreen = styled.div`
 
 export const Game: React.FC = () => {
     const [gameState] = useGameState();
-    return <div>
+    return <FullScreen>
+        <BasicGame />
         {gameState === GameState.InProgress || <FloatLayer>
             <FullScreen>
                 <Outlet/>
             </FullScreen>
         </FloatLayer>}
-    </div>;
+    </FullScreen>;
 };
