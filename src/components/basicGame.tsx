@@ -71,11 +71,13 @@ const Block = styled.div<BlockProps>`
   animation: ${props => props.blockStatus === BlockStatus.BeforeWrong ? 'fade 0.3s infinite' : 'null'};
 `;
 
+const genGame = () => {
+    return new DtWhiteBlock(new SequenceGenerator(4).generator(), 8);
+};
+
 
 export const BasicGame: React.FC = () => {
-    const [game, setGame] = useState(() => {
-        return new DtWhiteBlock(new SequenceGenerator(4).generator(), 8);
-    });
+    const [game, setGame] = useState(genGame);
     const [gameState, setGameState] = useGameState();
     const [gameStep, setGameStep] = useState(0);
     const [beforeFail, setBeforeFail] = useState(false);
@@ -107,7 +109,11 @@ export const BasicGame: React.FC = () => {
         if (gameState === GameState.Lose) {
             setBeforeFail(true);
             setTimeout(() => {
+                setGameStep(0);
+                setBeforeFail(false);
+                setCurrentClick(-1);
                 setGameState(GameState.Lose);
+                setGame(genGame);
             }, 1000);
         }
         setGameStep(game.currentStep);
