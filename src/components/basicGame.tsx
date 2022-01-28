@@ -6,7 +6,7 @@ import {DtWhiteBlock, SequenceGenerator} from "../core/games/dtWhiteBlock/dtWhit
 import {GameState} from "../core/games/state";
 import {useGameState} from "./hooks";
 
-const stageWidth = 640;
+const stageWidth = Math.min(window.innerWidth, 640);
 const blockSize = stageWidth / 4;
 
 const Stage = styled.div`
@@ -24,7 +24,7 @@ const Row = styled.div<{ bottom?: number }>`
   width: ${stageWidth}px;
   height: ${blockSize}px;
   justify-content: center;
-  transition: .2s;
+  transition: .05s;
 `;
 
 enum BlockStatus {
@@ -49,6 +49,8 @@ const Block = styled.div<BlockProps>`
   border-left: ${props => props.noBorderLeft ? 'none' : '1px solid #b8dfe6'};
   border-right: ${props => props.noBorderRight ? 'none' : '1px solid #b8dfe6'};
   border-top: ${props => props.noBorderTop ? 'none' : '1px solid #b8dfe6'};
+  padding: 10px;
+  
   background: ${props => {
     switch (props.blockStatus) {
       case BlockStatus.FullNotClicked:
@@ -65,6 +67,7 @@ const Block = styled.div<BlockProps>`
         return '#ff0000';
     }
   }};
+  background-size: auto 100%;
   animation: ${props => props.blockStatus === BlockStatus.BeforeWrong ? 'fade 0.3s infinite' : 'null'};
 `;
 
@@ -96,10 +99,10 @@ export const BasicGame: React.FC = () => {
         }
     };
     const onBlockClick = (rowIndex: number, columnIndex: number) => {
-        setCurrentClick(columnIndex);
         if (game.over) {
             return;
         }
+        setCurrentClick(columnIndex);
         const gameState = game.step(columnIndex);
         if (gameState === GameState.Lose) {
             setBeforeFail(true);
