@@ -2,7 +2,7 @@ import {GameState} from "../state";
 
 export class DtWhiteBlock {
     public readonly generated: number[];
-    private over: boolean = false;
+    public over: boolean = false;
     public currentStep = 0;
 
     constructor(
@@ -14,7 +14,7 @@ export class DtWhiteBlock {
     }
 
     private keepUntouched() {
-        for (let i: number = this.generated.length - this.currentStep + this.keepUntouchedSize; i > 0; i--) {
+        while (this.generated.length - this.currentStep < this.keepUntouchedSize) {
             this.generated.push(this.sequenceGenerator.next().value);
         }
     }
@@ -39,7 +39,10 @@ export class DtWhiteBlock {
 
 export class SequenceGenerator {
     constructor(private blockNum: number) {}
-    *generator(): IterableIterator<number> {
-        yield Math.floor(Math.random() * this.blockNum);
+
+    * generator(): IterableIterator<number> {
+        while (true) {
+            yield Math.floor(Math.random() * this.blockNum);
+        }
     }
 }
