@@ -31,6 +31,7 @@ enum BlockStatus {
     Empty,
     FullNotClicked,
     FullClicked,
+    BeforeWrong,
     Wrong
 }
 
@@ -60,29 +61,13 @@ const Block = styled.div<BlockProps>`
         return 'null';
       case BlockStatus.Wrong:
         return '#ff0000';
+      case BlockStatus.BeforeWrong:
+        return '#ff0000';
     }
   }};
+  animation: ${props => props.blockStatus === BlockStatus.BeforeWrong ? 'fade 0.3s infinite' : 'null'};
 `;
 
-
-const column2props = (
-    columnFullIndex: number,
-    rowIndex: number,
-    currentColumnIndex: number,
-    gameStep: number,
-    gameState: GameState,
-    clicked: boolean
-) => {
-    if (columnFullIndex === currentColumnIndex && gameStep > rowIndex) {
-        return BlockStatus.FullClicked;
-    } else if (columnFullIndex === currentColumnIndex && !(gameStep > rowIndex)) {
-        return BlockStatus.FullNotClicked;
-    } else if (gameState === GameState.Lose && gameStep === rowIndex && clicked) {
-        return BlockStatus.Wrong;
-    } else {
-        return BlockStatus.Empty;
-    }
-};
 
 export const BasicGame: React.FC = () => {
     const [game, setGame] = useState(() => {
@@ -90,15 +75,37 @@ export const BasicGame: React.FC = () => {
     });
     const [gameState, setGameState] = useGameState();
     const [gameStep, setGameStep] = useState(0);
+    const [beforeFail, setBeforeFail] = useState(false);
     const [currentClick, setCurrentClick] = useState(-1);
-    const onClick = (rowIndex: number, columnIndex: number) => {
+    const column2props = (
+        columnFullIndex: number,
+        rowIndex: number,
+        currentColumnIndex: number,
+        clicked: boolean
+    ) => {
+        if (columnFullIndex === currentColumnIndex && gameStep > rowIndex) {
+            return BlockStatus.FullClicked;
+        } else if (columnFullIndex === currentColumnIndex && !(gameStep > rowIndex)) {
+            return BlockStatus.FullNotClicked;
+        } else if (gameState === GameState.Lose && gameStep === rowIndex && clicked) {
+            return BlockStatus.Wrong;
+        } else if (beforeFail && gameStep === rowIndex && clicked) {
+            return BlockStatus.BeforeWrong;
+        } else {
+            return BlockStatus.Empty;
+        }
+    };
+    const onBlockClick = (rowIndex: number, columnIndex: number) => {
         setCurrentClick(columnIndex);
         if (game.over) {
             return;
         }
         const gameState = game.step(columnIndex);
         if (gameState === GameState.Lose) {
-            setGameState(GameState.Lose);
+            setBeforeFail(true);
+            setTimeout(() => {
+                setGameState(GameState.Lose);
+            }, 1000);
         }
         setGameStep(game.currentStep);
     };
@@ -113,13 +120,11 @@ export const BasicGame: React.FC = () => {
                         (_, columnIndex) =>
                             <Block
                                 key={columnIndex}
-                                onClick={() => onClick(rowIndex, columnIndex)}
+                                onClick={() => onBlockClick(rowIndex, columnIndex)}
                                 blockStatus={column2props(
                                     indexColumnFull,
                                     rowIndex,
                                     columnIndex,
-                                    gameStep,
-                                    gameState,
                                     currentClick === columnIndex
                                 )}
                             />
