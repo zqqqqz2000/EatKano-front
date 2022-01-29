@@ -2,6 +2,7 @@ import React, {useState} from "react";
 import styled from "@emotion/styled";
 import ClickBefore from "../image/BeforeClick.png";
 import ClickAfter from "../image/AfterClick.png";
+import Wrong from "../image/Wrong.png";
 import {DtWhiteBlock, SequenceGenerator} from "../core/games/dtWhiteBlock/dtWhiteBlock";
 import {GameState} from "../core/games/state";
 import {useGameState} from "./hooks";
@@ -62,9 +63,9 @@ const Block = styled.div<BlockProps>`
       case BlockStatus.Empty:
         return 'null';
       case BlockStatus.Wrong:
-        return '#ff0000';
+        return `url("${Wrong}") no-repeat center`;
       case BlockStatus.BeforeWrong:
-        return '#ff0000';
+        return `url("${Wrong}") no-repeat center`;
     }
   }};
   background-size: auto 100%;
