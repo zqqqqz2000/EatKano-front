@@ -24,7 +24,7 @@ const Row = styled.div<{ bottom?: number }>`
   width: ${stageWidth}px;
   height: ${blockSize}px;
   justify-content: center;
-  transition: .05s;
+  transition: .2s;
 `;
 
 enum BlockStatus {
@@ -50,7 +50,7 @@ const Block = styled.div<BlockProps>`
   border-right: ${props => props.noBorderRight ? 'none' : '1px solid #b8dfe6'};
   border-top: ${props => props.noBorderTop ? 'none' : '1px solid #b8dfe6'};
   padding: 10px;
-  
+
   background: ${props => {
     switch (props.blockStatus) {
       case BlockStatus.FullNotClicked:
@@ -129,7 +129,14 @@ export const BasicGame: React.FC = () => {
                         (_, columnIndex) =>
                             <Block
                                 key={columnIndex}
-                                onClick={() => onBlockClick(rowIndex, columnIndex)}
+                                onTouchStart={(e) => {
+                                    onBlockClick(rowIndex, columnIndex);
+                                }}
+                                onMouseDown={(e) => {
+                                    onBlockClick(rowIndex, columnIndex);
+                                }}
+                                onTouchEnd={(e) => e.preventDefault()}
+                                onMouseUp={(e) => e.preventDefault()}
                                 blockStatus={column2props(
                                     indexColumnFull,
                                     rowIndex,
