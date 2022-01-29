@@ -5,12 +5,16 @@ import ClickAfter from "../image/AfterClick.png";
 import Wrong from "../image/Wrong.png";
 import {DtWhiteBlock, SequenceGenerator} from "../core/games/dtWhiteBlock/dtWhiteBlock";
 import {GameState} from "../core/games/state";
-import {useGameState} from "./hooks";
+import {useGameState, useGameTicker} from "./hooks";
 
 const stageWidth = Math.min(window.innerWidth, 640);
 const blockSize = stageWidth / 4;
+const Second = 1000;
 
 const Stage = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
   height: calc(100vh + ${blockSize * 2}px);
   bottom: ${-blockSize}px;
   width: ${stageWidth}px;
@@ -72,17 +76,35 @@ const Block = styled.div<BlockProps>`
   animation: ${props => props.blockStatus === BlockStatus.BeforeWrong ? 'fade 0.3s infinite' : 'null'};
 `;
 
+const RemainTimeBoard: React.FC<{remaining: number}> = ({remaining}) => {
+    const remainSecond = (remaining / Second).toFixed(2);
+    return <div style={{position: "fixed", top: 10, color: 'red', zIndex: 999, fontWeight: 'bolder', fontSize: '2em'}}>
+        {remainSecond}s.
+    </div>
+}
+
 const genGame = () => {
-    return new DtWhiteBlock(new SequenceGenerator(4).generator(), 8);
+    return new DtWhiteBlock(new SequenceGenerator(4).generator(), 10);
 };
 
 
 export const BasicGame: React.FC = () => {
+    const totalGameTime = 20 * Second;
     const [game, setGame] = useState(genGame);
     const [gameState, setGameState] = useGameState();
     const [gameStep, setGameStep] = useState(0);
     const [beforeFail, setBeforeFail] = useState(false);
     const [currentClick, setCurrentClick] = useState(-1);
+    const [currentRemain, setCurrentRemain] = useState(totalGameTime);
+    const {startTick, stopTick} = useGameTicker(
+        (remaining) => {
+            setCurrentRemain(remaining)
+        }, () => {
+            setCurrentRemain(0);
+        },
+        Second / 100,
+        totalGameTime
+    );
     const column2props = (
         columnFullIndex: number,
         rowIndex: number,
@@ -105,10 +127,15 @@ export const BasicGame: React.FC = () => {
         if (game.over) {
             return;
         }
+        if (currentClick === -1) {
+            startTick();
+            console.log(new Date().getTime());
+        }
         setCurrentClick(columnIndex);
         const gameState = game.step(columnIndex);
         if (gameState === GameState.Lose) {
             setBeforeFail(true);
+            stopTick();
             setTimeout(() => {
                 setGameStep(0);
                 setBeforeFail(false);
@@ -120,6 +147,7 @@ export const BasicGame: React.FC = () => {
         setGameStep(game.currentStep);
     };
     return <Stage>
+        <RemainTimeBoard remaining={currentRemain}/>
         {game.generated.map((indexColumnFull, rowIndex) => {
             if (rowIndex < gameStep - 3) {
                 return <></>
