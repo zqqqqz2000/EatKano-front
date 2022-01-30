@@ -4,11 +4,15 @@ import ClickBefore from "../image/BeforeClick.png";
 import ClickAfter from "../image/AfterClick.png";
 import Wrong from "../image/Wrong.png";
 import {DtWhiteBlock, SequenceGenerator} from "../core/games/dtWhiteBlock/dtWhiteBlock";
-import {GameState} from "../core/games/state";
+import {useNavigate} from "react-router-dom";
 import {useGameState, useGameTicker} from "./hooks";
+import {RoutePaths} from "../router";
+import {GameState} from "../core/games/state";
 
-const stageWidth = Math.min(window.innerWidth, 640);
+
+const stageWidth = Math.max(Math.min(window.innerWidth, 640), 300);
 const blockSize = stageWidth / 4;
+const keepUntouched = Math.floor(window.innerHeight / blockSize) + 1;
 const Second = 1000;
 
 const Stage = styled.div`
@@ -76,7 +80,7 @@ const Block = styled.div<BlockProps>`
   animation: ${props => props.blockStatus === BlockStatus.BeforeWrong ? 'fade 0.3s infinite' : 'null'};
 `;
 
-const RemainTimeBoard: React.FC<{remaining: number}> = ({remaining}) => {
+const RemainTimeBoard: React.FC<{ remaining: number }> = ({remaining}) => {
     const remainSecond = (remaining / Second).toFixed(2);
     return <div style={{position: "fixed", top: 10, color: 'red', zIndex: 999, fontWeight: 'bolder', fontSize: '2em'}}>
         {remainSecond}s.
@@ -84,24 +88,45 @@ const RemainTimeBoard: React.FC<{remaining: number}> = ({remaining}) => {
 }
 
 const genGame = () => {
-    return new DtWhiteBlock(new SequenceGenerator(4).generator(), 10);
+    return new DtWhiteBlock(new SequenceGenerator(4).generator(), keepUntouched);
 };
 
+export type GameResult = {
+    score: number,
+    totalTime: number
+}
 
 export const BasicGame: React.FC = () => {
     const totalGameTime = 20 * Second;
     const [game, setGame] = useState(genGame);
+    const [epoch, setEpoch] = useState(0);
     const [gameState, setGameState] = useGameState();
     const [gameStep, setGameStep] = useState(0);
     const [beforeFail, setBeforeFail] = useState(false);
     const [currentClick, setCurrentClick] = useState(-1);
     const [currentRemain, setCurrentRemain] = useState(totalGameTime);
+    const navigate = useNavigate();
+    const reset = () => {
+        setGameStep(0);
+        setBeforeFail(false);
+        setCurrentClick(-1);
+        setCurrentRemain(totalGameTime);
+        setGame(genGame);
+    };
+    const gameOver = (remaining: number) => {
+        setGameState(GameState.Lose);
+        navigate(RoutePaths.failed, {
+            state: {
+                score: game.currentStep,
+                totalTime: totalGameTime - remaining
+            }
+        });
+        setEpoch(epoch + 1);
+        reset();
+    };
     const {startTick, stopTick} = useGameTicker(
-        (remaining) => {
-            setCurrentRemain(remaining)
-        }, () => {
-            setCurrentRemain(0);
-        },
+        (remaining) => setCurrentRemain(remaining),
+        (remaining) => gameOver(remaining),
         Second / 100,
         totalGameTime
     );
@@ -129,20 +154,13 @@ export const BasicGame: React.FC = () => {
         }
         if (currentClick === -1) {
             startTick();
-            console.log(new Date().getTime());
         }
         setCurrentClick(columnIndex);
         const gameState = game.step(columnIndex);
         if (gameState === GameState.Lose) {
             setBeforeFail(true);
             stopTick();
-            setTimeout(() => {
-                setGameStep(0);
-                setBeforeFail(false);
-                setCurrentClick(-1);
-                setGameState(GameState.Lose);
-                setGame(genGame);
-            }, 1000);
+            setTimeout(() => gameOver(currentRemain), 1000);
         }
         setGameStep(game.currentStep);
     };
@@ -152,7 +170,7 @@ export const BasicGame: React.FC = () => {
             if (rowIndex < gameStep - 3) {
                 return <></>
             }
-            return <Row key={rowIndex} bottom={(rowIndex + 2 - gameStep) * blockSize}>
+            return <Row key={`${rowIndex}#${epoch}`} bottom={(rowIndex + 2 - gameStep) * blockSize}>
                 {
                     new Array(4).fill(0).map(
                         (_, columnIndex) =>

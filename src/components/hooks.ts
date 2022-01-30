@@ -10,7 +10,7 @@ export const useGameState: () => [GameState, (gameState: GameState) => void] = (
 
 export const useGameTicker = (
     callback: (remaining: number) => void,
-    stopCallback: () => void,
+    stopCallback: (remaining: number) => void,
     intervalTime: number,
     totalTime: number
 ) => {
@@ -20,6 +20,7 @@ export const useGameTicker = (
     const stopTick = () => {
         setCurrentInterval(currentInterval => {
             if (currentInterval) {
+                setRemainingWithLastTime([totalTime, new Date().getTime()]);
                 clearInterval(currentInterval);
                 return undefined;
             }
@@ -40,7 +41,7 @@ export const useGameTicker = (
                 return [currentRemaining, currentTime];
             } else {
                 stopTick();
-                stopCallback();
+                stopCallback(0);
                 return [0, currentTime];
             }
         });

@@ -4,13 +4,8 @@ import {Button} from "react-bootstrap";
 import { Margin } from "../components/margin";
 import {useGameState} from "../components/hooks";
 import {GameState} from "../core/games/state";
+import {Text} from "../components/text"
 
-const Text = styled.div<{ color?: string, size?: string, weight?: number | string }>`
-  color: ${props => props.color ?? 'black'};
-  font-size: ${props => props.size ?? '100%'};
-  font-weight: ${props => props.weight ?? 'normal'};
-  font-family: "Helvetica Neue", Helvetica, STHeiTi, sans-serif;
-`;
 
 const Center = styled.div`text-align: center`;
 
