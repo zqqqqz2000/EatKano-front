@@ -9,11 +9,12 @@ import styled from "@emotion/styled";
 import {useLocation} from "react-router-dom";
 import {GameResult} from "../components/basicGame";
 
+const Second = 1000;
 const Center = styled.div`text-align: center`;
 
 const GameResultDisplay: React.FC<{ result: GameResult }> = ({result}) => {
-    const secondTotalTime = (result.totalTime / 1000).toFixed(2);
-    const cps = (result.score / result.totalTime * 1000).toFixed(2);
+    const secondTotalTime = (result.totalTime / Second).toFixed(2);
+    const cps = (result.score / result.totalTime * Second).toFixed(2);
     return <>
         <Text size='2.2em' color='white' weight='bold'>
             你一共吃掉了 {result.score} 个小鹿乃
@@ -27,16 +28,17 @@ const GameResultDisplay: React.FC<{ result: GameResult }> = ({result}) => {
     </>
 }
 
-export const Failed: React.FC = () => {
+export const Result: React.FC = () => {
     const [, setGameState] = useGameState();
     const {state} = useLocation();
+    const typedState = state as GameResult | undefined;
     const startGame = () => {
         setGameState(GameState.InProgress);
     };
     return <Center>
         <Text size='2.6em' color='yellow' weight='bold'>
             <img src={Awkward} alt="game over" style={{width: 30}}/>
-            游戏结束喽～
+            {!!state && typedState?.totalTime !== 20 * Second ? '寄汤来喽~' : '牛呀牛呀！'}
         </Text>
         <Margin top='20px'>
             {!!state && <GameResultDisplay result={state as GameResult}/>}

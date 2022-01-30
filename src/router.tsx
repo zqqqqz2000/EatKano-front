@@ -2,7 +2,7 @@ import React from "react";
 import {Route, Routes, BrowserRouter} from "react-router-dom";
 import Index from "./pages";
 import {Game} from "./pages/game";
-import {Failed} from "./pages/failed";
+import {Result} from "./pages/result";
 
 export enum RoutePaths {
     welcome = 'welcome',
@@ -17,7 +17,7 @@ export const MainRouter: React.FC = () => {
                 <Route path='/' element={<Game/>}>
                     <Route path={RoutePaths.welcome} element={<Index/>}/>
                     <Route path={RoutePaths.score} element={<div>score</div>}/>
-                    <Route path={RoutePaths.failed} element={<Failed/>}/>
+                    <Route path={RoutePaths.failed} element={<Result/>}/>
                 </Route>
             </Routes>
         </BrowserRouter>
