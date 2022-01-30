@@ -24,7 +24,11 @@ const FullScreen = styled.div`
 const useRedirectDefault = () => {
   const {pathname} = useLocation();
   const navigate = useNavigate();
-  useEffect(() => navigate(RoutePaths.welcome), [navigate, pathname])
+  useEffect(() => {
+      if (pathname === RoutePaths.empty) {
+          navigate(RoutePaths.welcome);
+      }
+  }, [navigate, pathname])
 }
 
 export const Game: React.FC = () => {
