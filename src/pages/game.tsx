@@ -1,9 +1,10 @@
-import React from "react";
-import {Outlet} from "react-router-dom";
+import React, {useEffect} from "react";
+import {Outlet, useLocation, useNavigate} from "react-router-dom";
 import styled from "@emotion/styled";
 import {useGameState} from "../components/hooks";
 import {GameState} from "../core/games/state";
 import {BasicGame} from "../components/basicGame";
+import {RoutePaths} from "../router";
 
 const FloatLayer = styled.div`
   position: fixed;
@@ -20,8 +21,15 @@ const FullScreen = styled.div`
   justify-content: center;
 `;
 
+const useRedirectDefault = () => {
+  const {pathname} = useLocation();
+  const navigate = useNavigate();
+  useEffect(() => navigate(RoutePaths.welcome), [navigate, pathname])
+}
+
 export const Game: React.FC = () => {
     const [gameState] = useGameState();
+    useRedirectDefault();
     return <FullScreen>
         <BasicGame />
         {gameState === GameState.InProgress || <FloatLayer>

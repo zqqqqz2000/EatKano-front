@@ -1,13 +1,13 @@
 import React from "react";
-import {Route, Routes, BrowserRouter} from "react-router-dom";
+import {Route, Routes, BrowserRouter, Navigate} from "react-router-dom";
 import Index from "./pages";
 import {Game} from "./pages/game";
 import {Result} from "./pages/result";
 
 export enum RoutePaths {
-    welcome = 'welcome',
-    score = 'score',
-    failed = 'failed'
+    empty = '/',
+    welcome = '/welcome',
+    result = '/result'
 }
 
 export const MainRouter: React.FC = () => {
@@ -16,8 +16,7 @@ export const MainRouter: React.FC = () => {
             <Routes>
                 <Route path='/' element={<Game/>}>
                     <Route path={RoutePaths.welcome} element={<Index/>}/>
-                    <Route path={RoutePaths.score} element={<div>score</div>}/>
-                    <Route path={RoutePaths.failed} element={<Result/>}/>
+                    <Route path={RoutePaths.result} element={<Result/>}/>
                 </Route>
             </Routes>
         </BrowserRouter>

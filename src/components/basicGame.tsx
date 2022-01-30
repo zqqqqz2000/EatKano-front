@@ -115,7 +115,7 @@ export const BasicGame: React.FC = () => {
     };
     const gameOver = (remaining: number) => {
         setGameState(GameState.Lose);
-        navigate(RoutePaths.failed, {
+        navigate(RoutePaths.result, {
             state: {
                 score: game.currentStep,
                 totalTime: totalGameTime - remaining

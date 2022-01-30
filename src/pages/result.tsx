@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect} from "react";
 import {GameState} from "../core/games/state";
 import {useGameState} from "../components/hooks";
 import {Text} from "../components/text";
@@ -6,8 +6,9 @@ import {Margin} from "../components/margin";
 import Awkward from "../image/Awkward.png"
 import {Button} from "react-bootstrap";
 import styled from "@emotion/styled";
-import {useLocation} from "react-router-dom";
+import {useLocation, useNavigate} from "react-router-dom";
 import {GameResult} from "../components/basicGame";
+import {RoutePaths} from "../router";
 
 const Second = 1000;
 const Center = styled.div`text-align: center`;
@@ -30,7 +31,15 @@ const GameResultDisplay: React.FC<{ result: GameResult }> = ({result}) => {
 
 export const Result: React.FC = () => {
     const [, setGameState] = useGameState();
+    const navigate = useNavigate();
     const {state} = useLocation();
+    useEffect(() => {
+        if (state === null) {
+            console.log(state);
+            setGameState(GameState.NotStarted);
+            navigate(RoutePaths.welcome);
+        }
+    }, [state]);
     const typedState = state as GameResult | undefined;
     const startGame = () => {
         setGameState(GameState.InProgress);
