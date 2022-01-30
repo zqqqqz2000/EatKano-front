@@ -8,18 +8,32 @@ import {GameState} from "../core/games/state";
 import {useGameState, useGameTicker} from "./hooks";
 
 const stageWidth = Math.min(window.innerWidth, 640);
+const screenHeight = window.innerHeight;
 const blockSize = stageWidth / 4;
 const Second = 1000;
 
-const Stage = styled.div`
+const Stage = styled.div<{rotate?: string}>`
   display: flex;
   align-items: center;
   justify-content: center;
-  height: calc(100vh + ${blockSize * 2}px);
+  height: calc(100vh + ${blockSize * 10}px);
   bottom: ${-blockSize}px;
   width: ${stageWidth}px;
   overflow: hidden;
   position: fixed;
+  transform-origin: bottom center;
+  transform: rotateX(${props => props.rotate ?? 0});
+  transform-style: preserve-3d;
+`;
+
+const Perspective = styled.div`
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  perspective: 1000px;
+  transform-style: preserve-3d;
 `;
 
 const Row = styled.div<{ bottom?: number }>`
@@ -76,7 +90,7 @@ const Block = styled.div<BlockProps>`
   animation: ${props => props.blockStatus === BlockStatus.BeforeWrong ? 'fade 0.3s infinite' : 'null'};
 `;
 
-const RemainTimeBoard: React.FC<{remaining: number}> = ({remaining}) => {
+const RemainTimeBoard: React.FC<{ remaining: number }> = ({remaining}) => {
     const remainSecond = (remaining / Second).toFixed(2);
     return <div style={{position: "fixed", top: 10, color: 'red', zIndex: 999, fontWeight: 'bolder', fontSize: '2em'}}>
         {remainSecond}s.
@@ -84,7 +98,7 @@ const RemainTimeBoard: React.FC<{remaining: number}> = ({remaining}) => {
 }
 
 const genGame = () => {
-    return new DtWhiteBlock(new SequenceGenerator(4).generator(), 10);
+    return new DtWhiteBlock(new SequenceGenerator(4).generator(), 20);
 };
 
 
@@ -146,36 +160,38 @@ export const BasicGame: React.FC = () => {
         }
         setGameStep(game.currentStep);
     };
-    return <Stage>
+    return <Perspective>
         <RemainTimeBoard remaining={currentRemain}/>
-        {game.generated.map((indexColumnFull, rowIndex) => {
-            if (rowIndex < gameStep - 3) {
-                return <></>
-            }
-            return <Row key={rowIndex} bottom={(rowIndex + 2 - gameStep) * blockSize}>
-                {
-                    new Array(4).fill(0).map(
-                        (_, columnIndex) =>
-                            <Block
-                                key={columnIndex}
-                                onTouchStart={(e) => {
-                                    onBlockClick(rowIndex, columnIndex);
-                                }}
-                                onMouseDown={(e) => {
-                                    onBlockClick(rowIndex, columnIndex);
-                                }}
-                                onTouchEnd={(e) => e.preventDefault()}
-                                onMouseUp={(e) => e.preventDefault()}
-                                blockStatus={column2props(
-                                    indexColumnFull,
-                                    rowIndex,
-                                    columnIndex,
-                                    currentClick === columnIndex
-                                )}
-                            />
-                    )
+        <Stage rotate={'60deg'}>
+            {game.generated.map((indexColumnFull, rowIndex) => {
+                if (rowIndex < gameStep - 3) {
+                    return <></>
                 }
-            </Row>;
-        })}
-    </Stage>
+                return <Row key={rowIndex} bottom={(rowIndex + 2 - gameStep) * blockSize}>
+                    {
+                        new Array(4).fill(0).map(
+                            (_, columnIndex) =>
+                                <Block
+                                    key={columnIndex}
+                                    onTouchStart={(e) => {
+                                        onBlockClick(rowIndex, columnIndex);
+                                    }}
+                                    onMouseDown={(e) => {
+                                        onBlockClick(rowIndex, columnIndex);
+                                    }}
+                                    onTouchEnd={(e) => e.preventDefault()}
+                                    onMouseUp={(e) => e.preventDefault()}
+                                    blockStatus={column2props(
+                                        indexColumnFull,
+                                        rowIndex,
+                                        columnIndex,
+                                        currentClick === columnIndex
+                                    )}
+                                />
+                        )
+                    }
+                </Row>;
+            })}
+        </Stage>
+    </Perspective>;
 };
